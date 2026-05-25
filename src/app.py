@@ -41,6 +41,43 @@ activities = {
     }
 }
 
+SUPPORTED_OPERATIONS = {"add", "subtract", "multiply", "divide"}
+
+
+def _validate_int(value: int, field_name: str) -> None:
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise TypeError(f"{field_name} must be an integer")
+
+
+def calculate(num1: int, num2: int, operation: str) -> int:
+    """Perform a basic calculator operation on two integers."""
+    _validate_int(num1, "num1")
+    _validate_int(num2, "num2")
+
+    if not isinstance(operation, str) or not operation.strip():
+        raise ValueError("operation is required")
+
+    normalized_operation = operation.strip().lower()
+    if normalized_operation not in SUPPORTED_OPERATIONS:
+        raise ValueError(
+            f"Unsupported operation. Choose one of: {', '.join(sorted(SUPPORTED_OPERATIONS))}"
+        )
+
+    try:
+        if normalized_operation == "add":
+            return num1 + num2
+        if normalized_operation == "subtract":
+            return num1 - num2
+        if normalized_operation == "multiply":
+            return num1 * num2
+        if num2 == 0:
+            raise ZeroDivisionError("Cannot divide by zero")
+        return num1 // num2
+    except ZeroDivisionError:
+        raise
+    except Exception as exc:
+        raise RuntimeError("Unexpected calculator error") from exc
+
 
 @app.get("/")
 def root():
@@ -50,6 +87,23 @@ def root():
 @app.get("/activities")
 def get_activities():
     return activities
+
+
+@app.get("/calculator")
+def calculator(num1: int, num2: int, operation: str):
+    """Calculate a result for two integers using a basic operation."""
+    try:
+        result = calculate(num1=num1, num2=num2, operation=operation)
+        return {
+            "num1": num1,
+            "num2": num2,
+            "operation": operation.strip().lower(),
+            "result": result,
+        }
+    except (TypeError, ValueError, ZeroDivisionError) as exc:
+        raise HTTPException(status_code=400, detail=str(exc))
+    except RuntimeError as exc:
+        raise HTTPException(status_code=500, detail=str(exc))
 
 
 @app.post("/activities/{activity_name}/signup")
