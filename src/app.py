@@ -69,9 +69,11 @@ def calculate(num1: int, num2: int, operation: str) -> int:
         return num1 - num2
     if normalized_operation == "multiply":
         return num1 * num2
-    if num2 == 0:
-        raise ZeroDivisionError("Cannot divide by zero")
-    return num1 // num2
+    if normalized_operation == "divide":
+        if num2 == 0:
+            raise ZeroDivisionError("Cannot divide by zero")
+        return num1 // num2
+    raise ValueError("Unsupported operation")
 
 
 @app.get("/")
