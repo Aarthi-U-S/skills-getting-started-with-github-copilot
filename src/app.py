@@ -63,20 +63,15 @@ def calculate(num1: int, num2: int, operation: str) -> int:
             f"Unsupported operation. Choose one of: {', '.join(sorted(SUPPORTED_OPERATIONS))}"
         )
 
-    try:
-        if normalized_operation == "add":
-            return num1 + num2
-        if normalized_operation == "subtract":
-            return num1 - num2
-        if normalized_operation == "multiply":
-            return num1 * num2
-        if num2 == 0:
-            raise ZeroDivisionError("Cannot divide by zero")
-        return num1 // num2
-    except ZeroDivisionError:
-        raise
-    except Exception as exc:
-        raise RuntimeError("Unexpected calculator error") from exc
+    if normalized_operation == "add":
+        return num1 + num2
+    if normalized_operation == "subtract":
+        return num1 - num2
+    if normalized_operation == "multiply":
+        return num1 * num2
+    if num2 == 0:
+        raise ZeroDivisionError("Cannot divide by zero")
+    return num1 // num2
 
 
 @app.get("/")
@@ -102,9 +97,8 @@ def calculator(num1: int, num2: int, operation: str):
         }
     except (TypeError, ValueError, ZeroDivisionError) as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    except RuntimeError as exc:
-        raise HTTPException(status_code=500, detail=str(exc))
-
+    except Exception:
+        raise HTTPException(status_code=500, detail="Unexpected calculator error")
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
