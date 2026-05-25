@@ -73,7 +73,6 @@ def calculate(num1: int, num2: int, operation: str) -> int:
         if num2 == 0:
             raise ZeroDivisionError("Cannot divide by zero")
         return num1 // num2
-    raise ValueError("Unsupported operation")
 
 
 @app.get("/")
@@ -99,8 +98,6 @@ def calculator(num1: int, num2: int, operation: str):
         }
     except (TypeError, ValueError, ZeroDivisionError) as exc:
         raise HTTPException(status_code=400, detail=str(exc))
-    except Exception:
-        raise HTTPException(status_code=500, detail="Unexpected calculator error")
 
 @app.post("/activities/{activity_name}/signup")
 def signup_for_activity(activity_name: str, email: str):
